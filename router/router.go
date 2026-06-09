@@ -48,15 +48,9 @@ func New(cfg config.Config, db *gorm.DB) *gin.Engine {
 }
 
 func registerQueueRoutes(api *gin.RouterGroup, db *gorm.DB) {
-
-	queueStorage := queueaccess.NewQueueStorage(db)
-	memberStorage := queueaccess.NewMemberStorage(db)
-	holidayStorage := queueaccess.NewHolidayStorage(db)
-
 	queueHandler := queue.NewHandler(queue.HandlerConfig{
-		MemberStorage:  memberStorage,
-		QueueStorage:   queueStorage,
-		HolidayStorage: holidayStorage,
+		MemberStorage: queueaccess.NewMemberStorage(db),
+		QueueStorage:  queueaccess.NewQueueStorage(db),
 	})
 
 	queues := api.Group("/queue")
