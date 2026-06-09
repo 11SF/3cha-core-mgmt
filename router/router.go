@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"time"
 
 	"portal/backend/app/holiday"
@@ -36,6 +37,19 @@ func New(cfg config.Config, db *gorm.DB) *gin.Engine {
 		corsConfig.AllowOrigins = []string{cfg.CORS.AllowOrigin}
 	}
 	r.Use(cors.New(corsConfig))
+
+	r.GET("/liveness", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
+	r.GET("/readiness", func(c *gin.Context) {
+		sqlDB, err := db.DB()
+		if err != nil || sqlDB.Ping() != nil {
+			c.Status(http.StatusServiceUnavailable)
+			return
+		}
+		c.Status(http.StatusOK)
+	})
 
 	{
 		api := r.Group("/api/v1")
