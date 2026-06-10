@@ -2,20 +2,24 @@ package queue
 
 import (
 	"portal/backend/app/queue/access"
+	"portal/backend/config"
 )
 
 type HandlerConfig struct {
+	Cfg           config.Config
 	MemberStorage access.MemberStorage
 	QueueStorage  access.QueueStorage
 }
 
 type handler struct {
+	cfg           config.Config
 	memberStorage access.MemberStorage
 	queueStorage  access.QueueStorage
 }
 
 func NewHandler(cfg HandlerConfig) *handler {
 	return &handler{
+		cfg:           cfg.Cfg,
 		memberStorage: cfg.MemberStorage,
 		queueStorage:  cfg.QueueStorage,
 	}

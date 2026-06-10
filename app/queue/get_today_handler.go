@@ -13,17 +13,18 @@ import (
 )
 
 type QueueWithMember struct {
-	ID          string                  `json:"id"`
-	QueueDate   string                  `json:"queueDate"`
-	Status      queueaccess.QueueStatus `json:"status"`
-	MemberID    string                  `json:"memberId"`
-	MemberName  string                  `json:"memberName"`
-	AvatarColor string                  `json:"avatarColor"`
+	ID            string                  `json:"id"`
+	QueueDate     string                  `json:"queueDate"`
+	Status        queueaccess.QueueStatus `json:"status"`
+	MemberID      string                  `json:"memberId"`
+	MemberName    string                  `json:"memberName"`
+	AvatarColor   string                  `json:"avatarColor"`
+	ConfluenceUrl string                  `json:"confluenceUrl,omitempty"`
 }
 
 func (h *handler) GetToday(c *gin.Context) {
 	ctx := c.Request.Context()
-	today := time.Now().UTC().Truncate(24 * time.Hour)
+	today := time.Now().Truncate(24 * time.Hour)
 
 	q, err := h.queueStorage.GetByDate(ctx, today)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -45,16 +46,17 @@ func (h *handler) GetToday(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, toResponse(q, member.ID.String(), member.Name, member.AvatarColor))
+	response.OK(c, toResponse(q, member.ID.String(), member.Name, member.AvatarColor, h.cfg.ConfluenceUrl))
 }
 
-func toResponse(q queueaccess.DailyQueue, memberID, name, color string) QueueWithMember {
+func toResponse(q queueaccess.DailyQueue, memberID, name, color, confluenceUrl string) QueueWithMember {
 	return QueueWithMember{
-		ID:          q.ID.String(),
-		QueueDate:   q.QueueDate.Format("2006-01-02"),
-		Status:      q.Status,
-		MemberID:    memberID,
-		MemberName:  name,
-		AvatarColor: color,
+		ID:            q.ID.String(),
+		QueueDate:     q.QueueDate.Format("2006-01-02"),
+		Status:        q.Status,
+		MemberID:      memberID,
+		MemberName:    name,
+		AvatarColor:   color,
+		ConfluenceUrl: confluenceUrl,
 	}
 }

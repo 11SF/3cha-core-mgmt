@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	Server   Server
-	Database Database
-	CORS     CORS
+	Server        Server
+	Database      Database
+	CORS          CORS
+	ConfluenceUrl string `env:"CONFLUENCE_URL"`
 }
 
 type Server struct {

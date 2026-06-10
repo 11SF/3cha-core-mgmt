@@ -54,6 +54,5 @@ func (h *handler) Skip(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, toResponse(newEntry, next.ID.String(), next.Name, next.AvatarColor))
+	response.OK(c, toResponse(newEntry, next.ID.String(), next.Name, next.AvatarColor, ""))
 }
-
