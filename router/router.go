@@ -53,7 +53,7 @@ func New(cfg config.Config, db *gorm.DB) *gin.Engine {
 
 	{
 		api := r.Group("/api/v1")
-		registerQueueRoutes(api, db)
+		registerQueueRoutes(cfg, api, db)
 		registerMemberRoutes(api, db)
 		registerHolidayRoutes(api, db)
 	}
@@ -61,8 +61,9 @@ func New(cfg config.Config, db *gorm.DB) *gin.Engine {
 	return r
 }
 
-func registerQueueRoutes(api *gin.RouterGroup, db *gorm.DB) {
+func registerQueueRoutes(cfg config.Config, api *gin.RouterGroup, db *gorm.DB) {
 	queueHandler := queue.NewHandler(queue.HandlerConfig{
+		Cfg:           cfg,
 		MemberStorage: queueaccess.NewMemberStorage(db),
 		QueueStorage:  queueaccess.NewQueueStorage(db),
 	})
