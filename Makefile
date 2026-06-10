@@ -30,3 +30,10 @@ docker-up: ## start postgres with docker compose
 .PHONY: docker-down
 docker-down: ## stop docker compose
 	docker compose down
+
+.PHONY: migrate
+migrate: ## run sql migrations
+	@for f in migration/*.up.sql; do \
+		echo "applying $$f ..."; \
+		psql "host=$${DB_HOST:-localhost} port=$${DB_PORT:-5432} user=$${DB_USER} password=$${DB_PASSWORD} dbname=$${DB_NAME} sslmode=$${DB_SSLMODE:-disable}" -f $$f; \
+	done

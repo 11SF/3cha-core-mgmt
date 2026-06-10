@@ -12,10 +12,6 @@ import (
 	"portal/backend/database"
 	"portal/backend/router"
 
-	holidayaccess "portal/backend/app/holiday/access"
-	memberaccess "portal/backend/app/member/access"
-	queueaccess "portal/backend/app/queue/access"
-
 	_ "embed"
 	_ "time/tzdata"
 )
@@ -31,16 +27,6 @@ func main() {
 	db, err := database.NewPostgres(cfg.Database)
 	if err != nil {
 		slog.Error("failed to connect to database", "error", err)
-		os.Exit(1)
-	}
-
-	if err := db.AutoMigrate(
-		&memberaccess.Member{},
-		&queueaccess.DailyQueue{},
-		&queueaccess.QueueConfig{},
-		&holidayaccess.Holiday{},
-	); err != nil {
-		slog.Error("failed to auto-migrate", "error", err)
 		os.Exit(1)
 	}
 
