@@ -6,22 +6,25 @@ import (
 )
 
 type HandlerConfig struct {
-	Cfg           config.Config
-	MemberStorage access.MemberStorage
-	QueueStorage  access.QueueStorage
+	Cfg            config.Config
+	MemberStorage  access.MemberStorage
+	QueueStorage   access.QueueStorage
+	HolidayStorage access.HolidayStorage
 }
 
 type handler struct {
-	cfg           config.Config
-	memberStorage access.MemberStorage
-	queueStorage  access.QueueStorage
+	cfg            config.Config
+	memberStorage  access.MemberStorage
+	queueStorage   access.QueueStorage
+	holidayStorage access.HolidayStorage
 }
 
 func NewHandler(cfg HandlerConfig) *handler {
 	return &handler{
-		cfg:           cfg.Cfg,
-		memberStorage: cfg.MemberStorage,
-		queueStorage:  cfg.QueueStorage,
+		cfg:            cfg.Cfg,
+		memberStorage:  cfg.MemberStorage,
+		queueStorage:   cfg.QueueStorage,
+		holidayStorage: cfg.HolidayStorage,
 	}
 }
 
