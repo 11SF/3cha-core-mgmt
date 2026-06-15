@@ -24,7 +24,9 @@ type QueueWithMember struct {
 
 func (h *handler) GetToday(c *gin.Context) {
 	ctx := c.Request.Context()
-	today := time.Now().Truncate(24 * time.Hour)
+	loc, _ := time.LoadLocation(h.cfg.Database.TimeZone)
+	now := time.Now().In(loc)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
 	q, err := h.queueStorage.GetByDate(ctx, today)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
