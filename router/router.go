@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"portal/backend/app/cipher"
 	"portal/backend/app/holiday"
 	holidayaccess "portal/backend/app/holiday/access"
 	"portal/backend/app/member"
@@ -56,6 +57,7 @@ func New(cfg config.Config, db *gorm.DB) *gin.Engine {
 		registerQueueRoutes(cfg, api, db)
 		registerMemberRoutes(api, db)
 		registerHolidayRoutes(api, db)
+		registerCipherRoutes(api)
 	}
 
 	return r
@@ -105,5 +107,15 @@ func registerHolidayRoutes(api *gin.RouterGroup, db *gorm.DB) {
 		holidays.GET("", holidayHandler.List)
 		holidays.POST("", holidayHandler.Create)
 		holidays.DELETE("/:id", holidayHandler.Delete)
+	}
+}
+
+func registerCipherRoutes(api *gin.RouterGroup) {
+	cipherHandler := cipher.NewHandler(cipher.HandlerConfig{})
+
+	ciphers := api.Group("/cipher")
+	{
+		ciphers.POST("/encrypt", cipherHandler.Encrypt)
+		ciphers.POST("/decrypt", cipherHandler.Decrypt)
 	}
 }
