@@ -59,8 +59,8 @@ func New(cfg config.Config, db *gorm.DB) *gin.Engine {
 		registerMemberRoutes(api, db)
 		registerHolidayRoutes(api, db)
 		registerCipherRoutes(api)
+		registerAgentRoutes(api)
 	}
-	registerAgentRoutes(r)
 
 	return r
 }
@@ -122,10 +122,10 @@ func registerCipherRoutes(api *gin.RouterGroup) {
 	}
 }
 
-func registerAgentRoutes(r *gin.Engine) {
+func registerAgentRoutes(api *gin.RouterGroup) {
 	agentHandler := agent.NewHandler(agent.HandlerConfig{})
 
-	agentGroup := r.Group("/api/agent")
+	agentGroup := api.Group("/agent")
 	{
 		agentGroup.GET("/skill-md", agentHandler.SkillMD)
 	}
