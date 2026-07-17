@@ -7,6 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// publicBaseURL is the only address agents outside the cluster can reach.
+// The in-cluster Host header (e.g. core-mgmt.3cha.svc.cluster.local) is not
+// reachable externally, so it must not be used here even though it's what
+// requests to this handler arrive with.
+const publicBaseURL = "https://api.nspublic.xyz"
+
 // SkillMD serves a SKILL.md document (per the open Agent Skills spec,
 // https://agentskills.io/specification) describing how an AI agent can call
 // the 3cha Portal API directly instead of going through the web UI.
@@ -15,23 +21,11 @@ import (
 // mutating endpoints (members/holidays/queue writes) are intentionally left
 // out so an agent granted this skill can't accidentally change data.
 func (h *handler) SkillMD(c *gin.Context) {
-	c.Data(http.StatusOK, "text/markdown; charset=utf-8", []byte(buildSkillMD(requestBaseURL(c))))
+	c.Data(http.StatusOK, "text/markdown; charset=utf-8", []byte(buildSkillMD()))
 }
 
-func requestBaseURL(c *gin.Context) string {
-	scheme := c.Request.Header.Get("X-Forwarded-Proto")
-	if scheme == "" {
-		if c.Request.TLS != nil {
-			scheme = "https"
-		} else {
-			scheme = "http"
-		}
-	}
-	return scheme + "://" + c.Request.Host
-}
-
-func buildSkillMD(baseURL string) string {
-	return strings.ReplaceAll(skillMDTemplate, "__BASE_URL__", baseURL)
+func buildSkillMD() string {
+	return strings.ReplaceAll(skillMDTemplate, "__BASE_URL__", publicBaseURL)
 }
 
 const skillMDTemplate = `---
@@ -200,6 +194,6 @@ directory:
 
 ` + "```bash" + `
 mkdir -p 3cha-portal-api
-curl __BASE_URL__/api/agent/skill-md -o 3cha-portal-api/SKILL.md
+curl __BASE_URL__/api/v1/agent/skill-md -o 3cha-portal-api/SKILL.md
 ` + "```" + `
 `
