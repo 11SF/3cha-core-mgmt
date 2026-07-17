@@ -11,7 +11,7 @@ import (
 // The in-cluster Host header (e.g. core-mgmt.3cha.svc.cluster.local) is not
 // reachable externally, so it must not be used here even though it's what
 // requests to this handler arrive with.
-const publicBaseURL = "https://api.nspublic.xyz"
+const publicBaseURL = "https://api.nspublic.xyz/3cha"
 
 // SkillMD serves a SKILL.md document (per the open Agent Skills spec,
 // https://agentskills.io/specification) describing how an AI agent can call
@@ -152,13 +152,30 @@ curl __BASE_URL__/api/v1/holidays
 ]
 ` + "```" + `
 
+### Handling the cipher key
+
+The API never generates or stores keys — the caller supplies one on every
+call. Before your first ` + "`encrypt`" + `/` + "`decrypt`" + ` call in a
+conversation:
+
+1. Ask the user for the key value.
+2. Ask whether they'd like it remembered for next time, and under what label
+   (e.g. ` + "`work-notes-key`" + `, or ` + "`default`" + ` if they don't care).
+3. If they say yes and your runtime has a persistent memory/notes mechanism,
+   save the key under that label so future sessions can reuse it without
+   asking again.
+4. On later calls, check for a saved key under the label the user names (or
+   ` + "`default`" + ` if unspecified) before asking again.
+
+**Never invent, guess, or silently reuse a key from a different label.** A
+new or different key must always come from the user explicitly — if nothing
+is saved under the requested label, ask.
+
 ### 5. Encrypt — ` + "`POST /api/v1/cipher/encrypt`" + `
 
 AES-GCM encrypt with a caller-supplied key (128/192/256-bit, i.e. 16/24/32
 ASCII characters). Output is hex-encoded (random 12-byte nonce prepended to
-the ciphertext).
-
-**Never invent or guess the key — always ask the user for it.**
+the ciphertext). See "Handling the cipher key" above before calling this.
 
 ` + "```bash" + `
 curl -X POST __BASE_URL__/api/v1/cipher/encrypt \
@@ -173,7 +190,8 @@ curl -X POST __BASE_URL__/api/v1/cipher/encrypt \
 ### 6. Decrypt — ` + "`POST /api/v1/cipher/decrypt`" + `
 
 Same shape, reversed: ` + "`text`" + ` is the hex string from ` + "`encrypt`" + `, ` + "`key`" + `
-must match the key used to encrypt it.
+must match the key used to encrypt it. See "Handling the cipher key" above
+before calling this.
 
 ` + "```bash" + `
 curl -X POST __BASE_URL__/api/v1/cipher/decrypt \
